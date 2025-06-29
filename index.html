@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Атлас стратагем</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a6572;
+            --secondary-color: #344955;
+            --accent-color: #f9aa33;
+            --light-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-dark: #232f34;
+            --text-light: #5f6c72;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+        }
+        
+        nav ul li a:hover, 
+        nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        nav ul li a i {
+            margin-right: 8px;
+        }
+        
+        /* Main content */
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 30px 0;
+        }
+        
+        .page-title {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title i {
+            margin-right: 12px;
+            color: var(--accent-color);
+        }
+        
+        /* Search and filters */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(249, 170, 51, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .filter-select {
+            min-width: 180px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: white;
+            font-size: 1rem;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+        
+        /* Cards grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-img {
+            height: 180px;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+            opacity: 0.9;
+        }
+        
+        .card-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .card-text {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            flex: 1;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: var(--text-dark);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn:hover {
+            background-color: #e69b2b;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(249, 170, 51, 0.1);
+        }
+        
+        .bookmark-btn {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .bookmark-btn.bookmarked {
+            color: var(--accent-color);
+        }
+        
+        /* Detail page */
+        .detail-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .detail-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .detail-img {
+            flex: 0 0 300px;
+            height: 250px;
+            background-color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 6rem;
+            opacity: 0.9;
+        }
+        
+        .detail-content {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .detail-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+        
+        .detail-subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        
+        .detail-description {
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        
+        .detail-section {
+            margin-bottom: 30px;
+        }
+        
+        .detail-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            color: var(--primary-color);
+        }
+        
+        /* Discussion styles */
+        .discussion-form {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(249, 170, 51, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .comments-list {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .comment {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comment:last-child {
+            border-bottom: none;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .comment-date {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* Learning materials */
+        .learning-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .learning-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .learning-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .learning-icon {
+            height: 120px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        
+        .learning-content {
+            padding: 20px;
+        }
+        
+        .learning-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        
+        /* Footer styles */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 0 20px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .footer-links a i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 5px 10px;
+            }
+            
+            .detail-header {
+                flex-direction: column;
+            }
+            
+            .detail-img {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header with navigation -->
+        <header>
+            <div class="header-container container">
+                <div class="logo">
+                    <i class="fas fa-chess-knight"></i>
+                    <span>Атлас стратагем</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" @click.prevent="changeView('home')" :class="{active: currentView === 'home'}"><i class="fas fa-home"></i> Главная</a></li>
+                        <li><a href="#" @click.prevent="changeView('learning')" :class="{active: currentView === 'learning'}"><i class="fas fa-book"></i> Обучающие материалы</a></li>
+                        <li><a href="#" @click.prevent="changeView('bookmarks')" :class="{active: currentView === 'bookmarks'}"><i class="fas fa-bookmark"></i> Закладки <span v-if="bookmarks.length > 0" class="bookmark-count">({{ bookmarks.length }})</span></a></li>
+                        <li><a href="#" @click.prevent="changeView('discussions')" :class="{active: currentView === 'discussions'}"><i class="fas fa-comments"></i> Обсуждения</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="main-content container">
+            <!-- Home view - Stratagem list -->
+            <div v-if="currentView === 'home'">
+                <h1 class="page-title"><i class="fas fa-list"></i> 36 Стратагем</h1>
+                
+                <div class="controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" v-model="searchQuery" placeholder="Поиск стратагем...">
+                    </div>
+                    <select class="filter-select" v-model="selectedCategory">
+                        <option value="">Все категории</option>
+                        <option v-for="category in categories" :value="category">{{ category }}</option>
+                    </select>
+                </div>
+                
+                <div class="cards-grid">
+                    <div class="card" v-for="stratagem in filteredStratagems" :key="stratagem.id">
+                        <div class="card-img">
+                            <i :class="stratagem.icon"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">{{ stratagem.title }}</h3>
+                            <p class="card-text">{{ stratagem.shortDescription }}</p>
+                            <div class="card-footer">
+                                <button class="btn btn-outline" @click="showStratagemDetail(stratagem.id)">
+                                    <i class="fas fa-info-circle"></i> Подробнее
+                                </button>
+                                <button class="bookmark-btn" :class="{bookmarked: isBookmarked(stratagem.id)}" 
+                                        @click="toggleBookmark(stratagem.id)" :title="isBookmarked(stratagem.id) ? 'Удалить из закладок' : 'Добавить в закладки'">
+                                    <i class="fas fa-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stratagem detail view -->
+            <div v-if="currentView === 'detail' && currentStratagem">
+                <h1 class="page-title"><i class="fas fa-scroll"></i> {{ currentStratagem.title }}</h1>
+                
+                <div class="detail-container">
+                    <div class="detail-header">
+                        <div class="detail-img">
+                            <i :class="currentStratagem.icon"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h2 class="detail-title">{{ currentStratagem.title }}</h2>
+                            <div class="detail-subtitle">Категория: {{ currentStratagem.category }}</div>
+                            <p class="detail-description">{{ currentStratagem.longDescription }}</p>
+                            <div class="card-footer">
+                                <button class="btn" @click="changeView('home')">
+                                    <i class="fas fa-arrow-left"></i> Назад к списку
+                                </button>
+                                <button class="bookmark-btn" :class="{bookmarked: isBookmarked(currentStratagem.id)}" 
+                                        @click="toggleBookmark(currentStratagem.id)" :title="isBookmarked(currentStratagem.id) ? 'Удалить из закладок' : 'Добавить в закладки'">
+                                    <i class="fas fa-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3><i class="fas fa-landmark"></i> Исторический контекст</h3>
+                        <p>{{ currentStratagem.historicalContext }}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3><i class="fas fa-lightbulb"></i> Примеры применения</h3>
+                        <p>{{ currentStratagem.examples }}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3><i class="fas fa-tasks"></i> Практические советы</h3>
+                        <p>{{ currentStratagem.advice }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Learning materials view -->
+            <div v-if="currentView === 'learning'">
+                <h1 class="page-title"><i class="fas fa-book"></i> Обучающие материалы</h1>
+                
+                <div class="learning-grid">
+                    <div class="learning-card">
+                        <div class="learning-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="learning-content">
+                            <h3 class="learning-title">Основы стратегии</h3>
+                            <p>Изучите фундаментальные принципы стратегического мышления и их применение в современном мире.</p>
+                            <button class="btn" style="margin-top: 15px;">
+                                <i class="fas fa-download"></i> Скачать PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="learning-card">
+                        <div class="learning-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="learning-content">
+                            <h3 class="learning-title">Видеоуроки</h3>
+                            <p>Коллекция видеоуроков по применению стратагем в бизнесе, переговорах и личной жизни.</p>
+                            <button class="btn" style="margin-top: 15px;">
+                                <i class="fas fa-play-circle"></i> Смотреть
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="learning-card">
+                        <div class="learning-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="learning-content">
+                            <h3 class="learning-title">Тесты и викторины</h3>
+                            <p>Проверьте свои знания стратагем и стратегического мышления с помощью интерактивных тестов.</p>
+                            <button class="btn" style="margin-top: 15px;">
+                                <i class="fas fa-play"></i> Начать тест
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="learning-card">
+                        <div class="learning-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <div class="learning-content">
+                            <h3 class="learning-title">Кейс-стади</h3>
+                            <p>Разбор реальных ситуаций применения стратагем в истории, бизнесе и политике.</p>
+                            <button class="btn" style="margin-top: 15px;">
+                                <i class="fas fa-book-open"></i> Изучить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bookmarks view -->
+            <div v-if="currentView === 'bookmarks'">
+                <h1 class="page-title"><i class="fas fa-bookmark"></i> Закладки <span v-if="bookmarks.length > 0">({{ bookmarks.length }})</span></h1>
+                
+                <div v-if="bookmarks.length > 0">
+                    <div class="cards-grid">
+                        <div class="card" v-for="id in bookmarks" :key="id" v-if="getStratagemById(id)">
+                            <div class="card-img">
+                                <i :class="getStratagemById(id).icon"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">{{ getStratagemById(id).title }}</h3>
+                                <p class="card-text">{{ getStratagemById(id).shortDescription }}</p>
+                                <div class="card-footer">
+                                    <button class="btn btn-outline" @click="showStratagemDetail(id)">
+                                        <i class="fas fa-info-circle"></i> Подробнее
+                                    </button>
+                                    <button class="bookmark-btn bookmarked" @click="toggleBookmark(id)" title="Удалить из закладок">
+                                        <i class="fas fa-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-else class="empty-state">
+                    <i class="fas fa-bookmark"></i>
+                    <h3>У вас пока нет закладок</h3>
+                    <p>Добавляйте стратагемы в закладки, чтобы вернуться к ним позже</p>
+                    <button class="btn" @click="changeView('home')">
+                        <i class="fas fa-arrow-left"></i> Перейти к стратагемам
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Discussions view -->
+            <div v-if="currentView === 'discussions'">
+                <h1 class="page-title"><i class="fas fa-comments"></i> Обсуждения</h1>
+                
+                <div class="discussion-form">
+                    <h3 style="margin-bottom: 20px;"><i class="fas fa-edit"></i> Добавить комментарий</h3>
+                    <div class="form-group">
+                        <label for="name">Ваше имя</label>
+                        <input type="text" id="name" class="form-control" v-model="newComment.name">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Комментарий</label>
+                        <textarea id="comment" class="form-control" v-model="newComment.text"></textarea>
+                    </div>
+                    <button class="btn" @click="addComment">
+                        <i class="fas fa-paper-plane"></i> Отправить
+                    </button>
+                </div>
+                
+                <div v-if="comments.length > 0">
+                    <h3 style="margin-bottom: 20px;"><i class="fas fa-comment-dots"></i> Комментарии ({{ comments.length }})</h3>
+                    <div class="comments-list">
+                        <div class="comment" v-for="(comment, index) in comments" :key="index">
+                            <div class="comment-header">
+                                <div class="comment-author">{{ comment.name }}</div>
+                                <div class="comment-date">{{ formatDate(comment.date) }}</div>
+                            </div>
+                            <p>{{ comment.text }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-else class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <h3>Обсуждений пока нет</h3>
+                    <p>Будьте первым, кто поделится своим мнением или опытом применения стратагем</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>Атлас стратагем</h3>
+                        <p>Приложение, посвященное древним стратегиям, которые остаются актуальными и в современном мире. Изучайте, применяйте и обсуждайте стратагемы для достижения успеха.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-vk"></i></a>
+                            <a href="#"><i class="fab fa-telegram"></i></a>
+                            <a href="#"><i class="fab fa-youtube"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Разделы</h3>
+                        <ul class="footer-links">
+                            <li><a href="#" @click.prevent="changeView('home')"><i class="fas fa-home"></i> Главная</a></li>
+                            <li><a href="#" @click.prevent="changeView('learning')"><i class="fas fa-book"></i> Обучающие материалы</a></li>
+                            <li><a href="#" @click.prevent="changeView('bookmarks')"><i class="fas fa-bookmark"></i> Закладки</a></li>
+                            <li><a href="#" @click.prevent="changeView('discussions')"><i class="fas fa-comments"></i> Обсуждения</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Контакты</h3>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fas fa-envelope"></i> info@atlas-stratagem.ru</a></li>
+                            <li><a href="#"><i class="fas fa-phone"></i> +7 (999) 123-45-67</a></li>
+                            <li><a href="#"><i class="fas fa-map-marker-alt"></i> Москва, ул. Стратегическая, 36</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>&copy; 2023 Атлас стратагем. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                currentView: 'home',
+                currentStratagem: null,
+                searchQuery: '',
+                selectedCategory: '',
+                bookmarks: [],
+                newComment: {
+                    name: '',
+                    text: ''
+                },
+                comments: [],
+                stratagems: [
+                    {
+                        id: 1,
+                        title: "Обмани императора, чтобы переплыть море",
+                        shortDescription: "Скрытие истинных намерений под видом обычных действий",
+                        longDescription: "Эта стратагема подразумевает сокрытие своих истинных намерений под видом обычных, ничем не примечательных действий. Она учит тому, как достичь цели, не вызывая подозрений у противника.",
+                        historicalContext: "Эта стратагема восходит к временам династии Тан, когда генерал Пэй Синь-цзюнь смог переправить войска через реку под видом торгового каравана.",
+                        examples: "В бизнесе: запуск пробного продукта для тестирования рынка перед основным релизом. В политике: публичные заявления о мирных намерениях при подготовке к военным действиям.",
+                        advice: "Действуйте последовательно и естественно. Избегайте резких движений, которые могут вызвать подозрения. Создайте правдоподобное прикрытие для своих действий.",
+                        category: "Военные",
+                        icon: "fas fa-ship"
+                    },
+                    {
+                        id: 2,
+                        title: "Осади Вэй, чтобы спасти Чжао",
+                        shortDescription: "Отвлечение внимания противника от главной цели",
+                        longDescription: "Суть этой стратагемы заключается в том, чтобы отвлечь внимание противника от вашей главной цели, создав угрозу в другом месте.",
+                        historicalContext: "Во время периода Сражающихся царств, когда государство Вэй напало на Чжао, союзник Чжао, государство Ци, вместо прямой помощи атаковал столицу Вэй, вынудив войска Вэй отступить для защиты своей территории.",
+                        examples: "В переговорах: поднятие второстепенного вопроса для отвлечения внимания от главной темы. В спорте: финт в одну сторону с последующим движением в другую.",
+                        advice: "Выберите цель для отвлекающего маневра, которая действительно важна для противника. Действуйте решительно, чтобы противник воспринял угрозу всерьёз.",
+                        category: "Военные",
+                        icon: "fas fa-chess-rook"
+                    },
+                    {
+                        id: 3,
+                        title: "Убей чужим ножом",
+                        shortDescription: "Добивайтесь целей чужими руками",
+                        longDescription: "Эта стратагема учит достигать своих целей, используя ресурсы и силы других людей или обстоятельств, не вступая в прямой конфликт.",
+                        historicalContext: "Во времена Троецарствия, Чжугэ Лян использовал соперничество между генералами царства Вэй, чтобы ослабить их, не вводя в бой собственные войска.",
+                        examples: "В бизнесе: использование конкурентной борьбы между другими компаниями для укрепления собственной позиции. В политике: поддержка одной фракции против другой для ослабления обоих.",
+                        advice: "Ищите существующие конфликты и противоречия в стане противника. Не действуйте открыто - оставайтесь в тени, направляя чужие действия в нужное вам русло.",
+                        category: "Политические",
+                        icon: "fas fa-user-friends"
+                    },
+                    {
+                        id: 4,
+                        title: "В покое ожидай утомлённого врага",
+                        shortDescription: "Сберегай силы, пока противник истощает свои",
+                        longDescription: "Стратагема рекомендует сохранять силы и ресурсы, пока противник тратит свои в бесплодных попытках атаковать или добиться преимущества.",
+                        historicalContext: "Генерал Сян Юй в битве при Гайся позволил войскам Хань измотать себя в бесплодных атаках, после чего нанёс сокрушительный контрудар свежими силами.",
+                        examples: "В деловых переговорах: позволить оппоненту выговориться и утомиться, прежде чем излагать свою позицию. В маркетинге: позволить конкурентам первыми выйти на рынок с новым продуктом и совершить ошибки.",
+                        advice: "Сохраняйте терпение. Организуйте свою оборону так, чтобы атаки противника требовали от него максимальных усилий при минимальных потерях с вашей стороны.",
+                        category: "Военные",
+                        icon: "fas fa-couch"
+                    },
+                    {
+                        id: 5,
+                        title: "Грабь во время пожара",
+                        shortDescription: "Используй кризисные ситуации для достижения целей",
+                        longDescription: "Эта стратагема учит использовать хаос, кризисы и трудности противника для собственной выгоды.",
+                        historicalContext: "Во время восстания Ань Лушаня, генерал Го Цзы-и воспользовался хаосом и внутренними конфликтами в стане повстанцев, чтобы нанести решающий удар.",
+                        examples: "В бизнесе: покупка активов конкурента во время экономического кризиса. В политике: проведение реформ во время общественного недовольства правящим режимом.",
+                        advice: "Будьте готовы действовать быстро, когда представится возможность. Имейте заранее подготовленный план на случай кризисных ситуаций.",
+                        category: "Политические",
+                        icon: "fas fa-fire"
+                    },
+                    {
+                        id: 6,
+                        title: "Подними шум на востоке, нападай на западе",
+                        shortDescription: "Отвлеки внимание противника от направления главного удара",
+                        longDescription: "Стратагема заключается в создании ложного впечатления о направлении атаки, чтобы заставить противника сосредоточить силы не там, где планируется основной удар.",
+                        historicalContext: "Чжугэ Лян неоднократно применял эту стратагему, имитируя подготовку к переправе в одном месте, а затем атакуя в другом, менее защищённом.",
+                        examples: "В футболе: финт в одну сторону с последующим пасом в противоположную. В маркетинге: запуск слухов о новом продукте в одной категории, чтобы скрыть разработку продукта в другой.",
+                        advice: "Сделайте отвлекающий манёвр максимально правдоподобным. Основной удар должен последовать достаточно быстро, пока противник не успел перегруппироваться.",
+                        category: "Военные",
+                        icon: "fas fa-bullhorn"
+                    }
+                ],
+                categories: ["Военные", "Политические", "Дипломатические", "Бизнес"]
+            },
+            computed: {
+                filteredStratagems() {
+                    let filtered = this.stratagems;
+                    
+                    // Filter by search query
+                    if (this.searchQuery) {
+                        const query = this.searchQuery.toLowerCase();
+                        filtered = filtered.filter(stratagem => 
+                            stratagem.title.toLowerCase().includes(query) ||
+                            stratagem.shortDescription.toLowerCase().includes(query) ||
+                            stratagem.category.toLowerCase().includes(query)
+                        );
+                    }
+                    
+                    // Filter by category
+                    if (this.selectedCategory) {
+                        filtered = filtered.filter(stratagem => stratagem.category === this.selectedCategory);
+                    }
+                    
+                    return filtered;
+                }
+            },
+            methods: {
+                changeView(view) {
+                    this.currentView = view;
+                    this.currentStratagem = null;
+                },
+                showStratagemDetail(id) {
+                    this.currentStratagem = this.stratagems.find(s => s.id === id);
+                    this.currentView = 'detail';
+                },
+                toggleBookmark(id) {
+                    const index = this.bookmarks.indexOf(id);
+                    if (index === -1) {
+                        this.bookmarks.push(id);
+                    } else {
+                        this.bookmarks.splice(index, 1);
+                    }
+                    this.saveBookmarks();
+                },
+                isBookmarked(id) {
+                    return this.bookmarks.includes(id);
+                },
+                getStratagemById(id) {
+                    return this.stratagems.find(s => s.id === id);
+                },
+                saveBookmarks() {
+                    localStorage.setItem('bookmarks', JSON.stringify(this.bookmarks));
+                },
+                loadBookmarks() {
+                    const saved = localStorage.getItem('bookmarks');
+                    if (saved) {
+                        this.bookmarks = JSON.parse(saved);
+                    }
+                },
+                addComment() {
+                    if (!this.newComment.name || !this.newComment.text) return;
+                    
+                    const comment = {
+                        name: this.newComment.name,
+                        text: this.newComment.text,
+                        date: new Date()
+                    };
+                    
+                    this.comments.unshift(comment);
+                    this.saveComments();
+                    
+                    // Reset form
+                    this.newComment.name = '';
+                    this.newComment.text = '';
+                },
+                formatDate(dateString) {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                saveComments() {
+                    localStorage.setItem('comments', JSON.stringify(this.comments));
+                },
+                loadComments() {
+                    const saved = localStorage.getItem('comments');
+                    if (saved) {
+                        this.comments = JSON.parse(saved);
+                    }
+                }
+            },
+            mounted() {
+                this.loadBookmarks();
+                this.loadComments();
+            }
+        });
+    </script>
+</body>
+</html>
